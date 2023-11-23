@@ -1,4 +1,5 @@
 use rusqlite::{Connection, params, Result};
+
 use crate::models::{User, UserDTO};
 use crate::repository::entity::Entity;
 use crate::repository::Repository;

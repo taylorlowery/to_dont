@@ -1,7 +1,7 @@
 use crate::repository::entity::Entity;
 
 mod entity;
-mod sqlite;
+pub mod sqlite;
 
 pub trait Repository<C, E: Entity, Err> {
     fn connect_to_db(connection_string: &str) -> Result<C, Err>;
