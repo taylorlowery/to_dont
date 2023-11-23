@@ -6,3 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = { version = "0.4.31", features = [] }
+
+[dependencies.rusqlite]
+version = "0.30.0"
+features = ["bundled"]
+
+[lib]
+name = "to_dont"
+path = "src/lib.rs"
