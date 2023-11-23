@@ -13,8 +13,6 @@ mod tests {
     fn test_new_user() -> Result<(), rusqlite::Error> {
         let user_repo = user_repository::UserRepository::new(None)?;
 
-        user_repo.create_db()?;
-
         // create a user
         let new_user = UserDTO {
             first_name: "Taylor".to_string(),
@@ -39,8 +37,6 @@ mod tests {
     #[test]
     fn test_update_user() -> Result<(), rusqlite::Error> {
         let user_repo = user_repository::UserRepository::new(None)?;
-
-        user_repo.create_db()?;
 
         // create a user
         let new_user = UserDTO {
@@ -80,8 +76,6 @@ mod tests {
     #[test]
     fn test_delete_user() -> Result<(), rusqlite::Error> {
         let user_repo = user_repository::UserRepository::new(None)?;
-
-        user_repo.create_db()?;
 
         // create a user
         let new_user = UserDTO {

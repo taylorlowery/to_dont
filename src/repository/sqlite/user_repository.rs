@@ -22,16 +22,11 @@ impl UserRepository {
             Some(connection_string) => UserRepository::connect_to_db(connection_string)?,
             None => Connection::open_in_memory()?,
         };
-        Ok(UserRepository { conn })
+        let user_repo = UserRepository { conn };
+        user_repo.create_db()?;
+        Ok(user_repo)
     }
-}
 
-
-impl Repository<Connection, User, rusqlite::Error> for UserRepository {
-    fn connect_to_db(connection_string: &str) -> Result<Connection> {
-        let conn: Connection = Connection::open(connection_string)?;
-        Ok(conn)
-    }
     /// Create the SQLite database structure for the blog database
     fn create_db(&self) -> Result<()> {
         // create users table
@@ -44,28 +39,17 @@ email TEXT NOT NULL\
 )",
             (),
         )?;
-//
-//         // create credentials table
-//         conn.execute(
-//             "CREATE TABLE credentials(\
-// email TEXT PRIMARY KEY,
-// password TEXT NOT NULL
-// )", ()
-//         )?;
-//
-//         // create blog posts table
-//         conn.execute(
-//             "CREATE TABLE posts(\
-// id INTEGER PRIMARY KEY,\
-// created_datetime INTEGER DEFAULT (strftime('%s', 'now')),\
-// title TEXT NOT NULL,\
-// text TEXT NOT NULL\
-// )",
-//             (),
-//         )?;
-
         Ok(())
     }
+}
+
+
+impl Repository<Connection, User, rusqlite::Error> for UserRepository {
+    fn connect_to_db(connection_string: &str) -> Result<Connection> {
+        let conn: Connection = Connection::open(connection_string)?;
+        Ok(conn)
+    }
+
     fn save_new_item(&self, user_dto: &UserDTO) -> Result<i64> {
         self.conn.execute(
             "INSERT INTO users (first_name, last_name, email) VALUES (?1, ?2, ?3)",
