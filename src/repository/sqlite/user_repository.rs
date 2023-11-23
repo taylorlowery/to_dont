@@ -15,18 +15,21 @@ impl Entity for User {
 }
 
 impl UserRepository {
-    pub fn new(connection_string: &str) -> Result<UserRepository> {
-        Ok(UserRepository {
-            conn: UserRepository::connect_to_db(connection_string)?
-        })
+    /// Generate an instance of the user repository.
+    /// If no connection string (desired db file name) is provided, returns an in-memory db.
+    pub fn new(connection_string: Option<&str>) -> Result<UserRepository> {
+        let conn = match connection_string {
+            Some(connection_string) => UserRepository::connect_to_db(connection_string)?,
+            None => Connection::open_in_memory()?,
+        };
+        Ok(UserRepository { conn })
     }
 }
 
 
 impl Repository<Connection, User, rusqlite::Error> for UserRepository {
     fn connect_to_db(connection_string: &str) -> Result<Connection> {
-        // let conn: Connection = Connection::open(BLOG_DB_PATH)?;
-        let conn: Connection = Connection::open_in_memory()?;
+        let conn: Connection = Connection::open(connection_string)?;
         Ok(conn)
     }
     /// Create the SQLite database structure for the blog database
@@ -84,10 +87,18 @@ email TEXT NOT NULL\
             },
         ).map_err(|e| e.into())
     }
-    fn update_item(&self, user: &User) -> Result<()> {
-        todo!()
+    fn update_item(&self, user: &User) -> Result<usize> {
+        let updated_count = self.conn.execute(
+            "UPDATE users SET first_name = ?1, last_name = ?2, email = ?3 WHERE id = ?4",
+            params![user.first_name, user.last_name, user.email, user.id],
+        )?;
+        Ok(updated_count)
     }
-    fn delete_item_by_id(&self, id: &i64) -> Result<()> {
-        todo!()
+    fn delete_item_by_id(&self, id: &i64) -> Result<usize> {
+        let deleted_count = self.conn.execute(
+            "DELETE FROM users WHERE id = ?1",
+            params![id],
+        )?;
+        Ok(deleted_count)
     }
 }
