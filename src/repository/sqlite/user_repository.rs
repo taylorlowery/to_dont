@@ -78,6 +78,15 @@ impl Repository<Connection, User, rusqlite::Error> for UserRepository {
         )?;
         Ok(updated_count)
     }
+
+    /// Delete a user by id
+    ///
+    /// Returns the number of rows deleted -- should be 1 if successful,
+    /// or 0 if no user with the provided id was found.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - a 64-bit integer representing the id of the user to delete
     fn delete_item_by_id(&self, id: &i64) -> Result<usize> {
         let deleted_count = self.conn.execute(
             "DELETE FROM users WHERE id = ?1",

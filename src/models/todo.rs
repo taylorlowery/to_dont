@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 
 #[derive(Debug)]
-struct TodoItem {
+pub struct TodoItem {
     pub id: i64,
     pub user_id: i64,
     pub task: String,
@@ -15,8 +15,8 @@ struct TodoItem {
 }
 
 #[derive(Debug)]
-struct TodoItemDTO {
-    user_id: i64,
-    task: String,
+pub struct TodoItemDTO {
+    pub user_id: i64,
+    pub task: String,
 }
 
