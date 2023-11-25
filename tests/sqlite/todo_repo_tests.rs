@@ -1,11 +1,13 @@
-const TEST_CONN_STRING: &str = "./test_db.db3";
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+    use std::fs;
+    use std::path::Path;
+
+    use to_dont::models::todo::{TodoItem, TodoItemDTO};
     use to_dont::repository::Repository;
     use to_dont::repository::sqlite::todo_repository;
-    use to_dont::models::todo::{TodoItem, TodoItemDTO};
-
 
     #[test]
     fn test_new_todo_item() -> Result<(), rusqlite::Error> {
@@ -208,6 +210,40 @@ mod tests {
         // just to be sure, make sure none of user 1's todos have the same id as user 2's todo
         assert_ne!(user_1_todos[0].id, user_2_todo_id);
         assert_ne!(user_1_todos[1].id, user_2_todo_id);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_create_db_from_todo_repo() -> Result<(), Box<dyn Error>> {
+
+        let test_conn_string: &str = "./todo_test_db.db3";
+
+        // make sure that the test db file does not exist
+        if Path::new(test_conn_string).exists() {
+            fs::remove_file(test_conn_string)?;
+        }
+        let db_exists = Path::new(test_conn_string).exists();
+        assert_eq!(db_exists, false);
+
+        // create scope to hold the db connection
+        // so that it will be dropped and the db file will be closed
+        // otherwise, the file will be locked and the test will panic when we attempt to delete it
+        {
+            // create the test db
+            let _ = todo_repository::TodoRepository::new(Some(test_conn_string))?;
+
+            // validate the that the db file exists
+            let db_exists = Path::new(test_conn_string).exists();
+            assert_eq!(db_exists, true);
+        }
+
+        // delete the test db
+        fs::remove_file(test_conn_string)?;
+
+        // just to be thorough, make sure the file was deleted
+        let db_exists = Path::new(test_conn_string).exists();
+        assert_eq!(db_exists, false);
 
         Ok(())
     }

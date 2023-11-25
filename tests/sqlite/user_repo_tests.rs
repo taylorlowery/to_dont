@@ -1,7 +1,10 @@
-const TEST_CONN_STRING: &str = "./test_db.db3";
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+    use std::fs;
+    use std::path::Path;
+
     use to_dont::models::{User, UserDTO};
     use to_dont::repository::Repository;
     use to_dont::repository::sqlite::user_repository;
@@ -121,6 +124,41 @@ mod tests {
         assert_eq!(user2.first_name, new_user2.first_name);
         assert_eq!(user2.last_name, new_user2.last_name);
         assert_eq!(user2.email, new_user2.email);
+
+        Ok(())
+    }
+
+
+    #[test]
+    fn check_db_created_from_user_repo() -> Result<(), Box<dyn Error>> {
+
+        let test_conn_string: &str = "./user_test_db.db3";
+
+        if Path::new(test_conn_string).exists() {
+            fs::remove_file(test_conn_string)?;
+        }
+        // make sure that the test db file does not exist
+        let db_exists = Path::new(test_conn_string).exists();
+        assert_eq!(db_exists, false);
+
+        // create scope to hold the db connection
+        // so that it will be dropped and the db file will be closed
+        // otherwise, the file will be locked and the test will panic when we attempt to delete it
+        {
+            // create the test db
+            let _ = user_repository::UserRepository::new(Some(test_conn_string))?;
+
+            // validate the that the db file exists
+            let db_exists = Path::new(test_conn_string).exists();
+            assert_eq!(db_exists, true);
+        }
+
+        // delete the test db
+        fs::remove_file(test_conn_string)?;
+
+        // just to be thorough, make sure the file was deleted
+        let db_exists = Path::new(test_conn_string).exists();
+        assert_eq!(db_exists, false);
 
         Ok(())
     }
