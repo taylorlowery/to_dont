@@ -106,8 +106,10 @@ impl Repository<Connection, TodoItem, rusqlite::Error> for TodoRepository {
         ).map_err(|e| e.into())
     }
 
-    fn update_item(&self, todo_item: &TodoItem) -> Result<usize> {
-        Ok(0) // I hate this
+    fn update_item(&self, id: &i64, todo_item: &TodoItemDTO) -> Result<usize> {
+        self.conn.execute("UPDATE todos SET task = ?1 WHERE id = ?2",
+            params![todo_item.task, id],
+        )
     }
 
     fn delete_item_by_id(&self, id: &i64) -> Result<usize> {

@@ -71,10 +71,10 @@ impl Repository<Connection, User, rusqlite::Error> for UserRepository {
             },
         ).map_err(|e| e.into())
     }
-    fn update_item(&self, user: &User) -> Result<usize> {
+    fn update_item(&self, id: &i64, user: &UserDTO) -> Result<usize> {
         let updated_count = self.conn.execute(
             "UPDATE users SET first_name = ?1, last_name = ?2, email = ?3 WHERE id = ?4",
-            params![user.first_name, user.last_name, user.email, user.id],
+            params![user.first_name, user.last_name, user.email, id],
         )?;
         Ok(updated_count)
     }
