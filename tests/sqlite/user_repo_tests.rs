@@ -7,8 +7,6 @@ const TEST_CONN_STRING: &str = "./test_db.db3";
 mod tests {
     use to_dont::repository::Repository;
 
-    use super::*;
-
     #[test]
     fn test_new_user() -> Result<(), rusqlite::Error> {
         let user_repo = user_repository::UserRepository::new(None)?;

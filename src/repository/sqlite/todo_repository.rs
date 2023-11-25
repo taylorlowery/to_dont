@@ -1,6 +1,5 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
-use rusqlite::{Connection, Error, params, Result};
-use rusqlite::types::{FromSql, FromSqlResult, ValueRef};
+use chrono::DateTime;
+use rusqlite::{Connection, params, Result};
 
 use crate::models::{TodoItem, TodoItemDTO};
 use crate::repository::entity::Entity;
