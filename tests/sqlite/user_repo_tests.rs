@@ -1,6 +1,3 @@
-use to_dont::models::{User, UserDTO};
-use to_dont::repository::sqlite::user_repository;
-
 const TEST_CONN_STRING: &str = "./test_db.db3";
 
 #[cfg(test)]
@@ -47,7 +44,7 @@ mod tests {
 
         // save the user
         let user_id = user_repo.save_new_item(&new_user)?;
-        let mut user: User = user_repo.select_item_by_id(&user_id)?;
+        let user: User = user_repo.select_item_by_id(&user_id)?;
 
         // make sure the user has the correct values
         assert_eq!(user.first_name, new_user.first_name);

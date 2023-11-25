@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 use rusqlite::{Connection, params, Result};
 
 use crate::models::{TodoItem, TodoItemDTO};
@@ -43,13 +43,17 @@ completed_datetime INTEGER)",
     pub fn get_user_todos(&self, user_id: &i64) -> Result<Vec<TodoItem>> {
         let mut stmt = self.conn.prepare("SELECT * FROM todos WHERE user_id = ?1")?;
         let todo_iter = stmt.query_map(params![user_id], |row| {
+            let completed_datetime: Option<DateTime<Utc>> = match row.get(5)? {
+                Some(timestamp) => Some(DateTime::from_timestamp(timestamp, 0).ok_or(rusqlite::Error::QueryReturnedNoRows)?),
+                None => None,
+            };
             Ok(TodoItem {
                 id: row.get(0)?,
                 user_id: row.get(1)?,
                 task: row.get(2)?,
                 completed: row.get(3)?,
                 created_datetime: DateTime::from_timestamp(row.get(4)?, 0).ok_or(rusqlite::Error::QueryReturnedNoRows)?,
-                completed_datetime: DateTime::from_timestamp(row.get(5)?, 0).ok_or(rusqlite::Error::QueryReturnedNoRows)?,
+                completed_datetime,
             })
         })?;
         let mut todos = Vec::new();
@@ -88,18 +92,23 @@ impl Repository<Connection, TodoItem, rusqlite::Error> for TodoRepository {
         Ok(self.conn.last_insert_rowid())
     }
 
+
     fn select_item_by_id(&self, id: &i64) -> Result<TodoItem> {
         self.conn.query_row(
             "Select id, user_id, task, completed, created_datetime, completed_datetime FROM todos where id = ?1",
             params![id],
             |row| {
+                let completed_datetime: Option<DateTime<Utc>> = match row.get(5)? {
+                    Some(timestamp) => Some(DateTime::from_timestamp(timestamp, 0).ok_or(rusqlite::Error::QueryReturnedNoRows)?),
+                    None => None,
+                };
                 Ok(TodoItem {
                     id: row.get(0)?,
                     user_id: row.get(1)?,
                     task: row.get(2)?,
                     completed: row.get(3)?,
                     created_datetime: DateTime::from_timestamp(row.get(4)?, 0).ok_or(rusqlite::Error::QueryReturnedNoRows)?,
-                    completed_datetime: DateTime::from_timestamp(row.get(5)?, 0).ok_or(rusqlite::Error::QueryReturnedNoRows)?,
+                    completed_datetime,
                 })
             },
         ).map_err(|e| e.into())

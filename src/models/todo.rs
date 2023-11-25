@@ -7,7 +7,7 @@ pub struct TodoItem {
     pub task: String,
     pub completed: bool,
     pub created_datetime: DateTime<Utc>,
-    pub completed_datetime: DateTime<Utc>,
+    pub completed_datetime: Option<DateTime<Utc>>,
     // Future: Steps of sub-tasks?
     // pub sub_tasks: Vec<TodoItem>,
     // Future: additional notes?
